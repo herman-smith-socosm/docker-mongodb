@@ -6,3 +6,5 @@ version: "2" services:
     volumes:
       - ./db:/data/db
       - ./backup:/backup
+    ports:
+      - "27017:27017"
