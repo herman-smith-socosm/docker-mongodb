@@ -24,6 +24,8 @@ export ASYMKEY="${cipherkey//\"}"
 admin=`aws ssm get-parameter --name "ROOT" --with-decryption --query Parameter.Value`
 export ROOT="${admin//\"}"
 
+
+
 echo "Pulling $TARGET_ENVIRONMENT images"
 docker-compose up --no-start
 
@@ -32,7 +34,6 @@ docker-compose start db
 echo -n "Starting ..."
 sleep 5
 echo ${green} "done"
-docker-compose logs --tail 13 app
 echo ""
 echo "***********************************"
 echo "* START COMPLETE                  *"
