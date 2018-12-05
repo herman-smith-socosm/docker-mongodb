@@ -25,22 +25,23 @@ admin=`aws ssm get-parameter --name "ROOT" --with-decryption --query Parameter.V
 export ROOT="${admin//\"}"
 
 
-db-admin-folder="$ROOT_DIR/db-admin"
-echo "Check if ${db-admin-folder} dir present"
-echo "Does ${db-admin-folder} exist? "
-if [ -d "${db-admin-folder}" ]
+echo $ROOT_DIR
+dbadmin="$ROOT_DIR/dbadmin"
+echo "Check if ${dbadmin} dir present"
+echo "Does ${dbadmin} exist? "
+if [ -d "${dbadmin}" ]
 then
   echo "YES"
 
-  sed -i "s|%%USER%%|$DB_USER|" "$ROOT_DIR/db-admin/create-admin-user.js"
-  sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$ROOT_DIR/db-admin/create-admin-user.js"
-  mv $ROOT_DIR/db-admin/create-admin-user.js $ROOT_DIR/db/
+  sed -i "s|%%USER%%|$DB_USER|" "$dbadmin/create-admin-user.js"
+  sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$dbadmin/create-admin-user.js"
+  mv $ROOT_DIR/dbadmin/create-admin-user.js $ROOT_DIR/db/
 
-  sed -i "s|%%USER%%|$DB_USER|" "$ROOT_DIR/db-admin/create-elysian-user.js"
-  sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$ROOT_DIR/db-admin/create-elysian-user.js"
-  mv $ROOT_DIR/db-admin/create-elysian-user.js $ROOT_DIR/db/
+  sed -i "s|%%USER%%|$DB_USER|" "$dbadmin/create-elysian-user.js"
+  sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$dbadmin/create-elysian-user.js"
+  mv $dbadmin/create-elysian-user.js $ROOT_DIR/db/
 
-  rm -rf ${db-admin-folder}
+  rm -rf ${dbadmin}
 else
   echo "NO"
 fi
@@ -56,7 +57,7 @@ $ROOT_DIR/bin/wait-for-service.sh db 'waiting for connections on port' 10
 docker exec db mongo admin /data/db/create-admin-user.js
 docker exec db rm /data/db/create-admin-user.js
 
-docker exec db mongo admin /data/db/create-elysian-user.js
+docker exec db mongo elysian /data/db/create-elysian-user.js
 docker exec db rm /data/db/create-elysian-user.js
 
 echo -n "Starting ..."
