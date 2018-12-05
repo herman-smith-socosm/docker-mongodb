@@ -35,13 +35,10 @@ then
 
   sed -i "s|%%USER%%|$DB_USER|" "$dbadmin/create-admin-user.js"
   sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$dbadmin/create-admin-user.js"
+  sudo mv $dbadmin/create-admin-user.js $ROOT_DIR/db/
 
   sed -i "s|%%USER%%|$DB_USER|" "$dbadmin/create-elysian-user.js"
   sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$dbadmin/create-elysian-user.js"
-
-  cp -r $dbadmin $ROOT_DIR/dbadmin-bak
-
-  sudo mv $dbadmin/create-admin-user.js $ROOT_DIR/db/
   sudo mv $dbadmin/create-elysian-user.js $ROOT_DIR/db/
 
   rm -rf ${dbadmin}
