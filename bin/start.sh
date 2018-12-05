@@ -25,11 +25,39 @@ admin=`aws ssm get-parameter --name "ROOT" --with-decryption --query Parameter.V
 export ROOT="${admin//\"}"
 
 
+db-admin-folder="$ROOT_DIR/db-admin"
+echo "Check if ${db-admin-folder} dir present"
+echo "Does ${db-admin-folder} exist? "
+if [ -d "${db-admin-folder}" ]
+then
+  echo "YES"
+
+  sed -i "s|%%USER%%|$DB_USER|" "$ROOT_DIR/db-admin/create-admin-user.js"
+  sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$ROOT_DIR/db-admin/create-admin-user.js"
+  mv $ROOT_DIR/db-admin/create-admin-user.js $ROOT_DIR/db/
+
+  sed -i "s|%%USER%%|$DB_USER|" "$ROOT_DIR/db-admin/create-elysian-user.js"
+  sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$ROOT_DIR/db-admin/create-elysian-user.js"
+  mv $ROOT_DIR/db-admin/create-elysian-user.js $ROOT_DIR/db/
+
+  rm -rf ${db-admin-folder}
+else
+  echo "NO"
+fi
 
 echo "Pulling $TARGET_ENVIRONMENT images"
 docker-compose up --no-start
 
 docker-compose start db
+
+# attempting to wait for mongodb to be ready
+$ROOT_DIR/bin/wait-for-service.sh db 'waiting for connections on port' 10
+
+docker exec db mongo admin /data/db/create-admin-user.js
+docker exec db rm /data/db/create-admin-user.js
+
+docker exec db mongo admin /data/db/create-elysian-user.js
+docker exec db rm /data/db/create-elysian-user.js
 
 echo -n "Starting ..."
 sleep 5
