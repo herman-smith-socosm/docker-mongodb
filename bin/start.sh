@@ -33,15 +33,18 @@ if [ -d "${dbadmin}" ]
 then
   echo "YES"
 
-#   sed -i "s|%%USER%%|$DB_USER|" "$dbadmin/create-admin-user.js"
-#   sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$dbadmin/create-admin-user.js"
-#   mv $ROOT_DIR/dbadmin/create-admin-user.js $ROOT_DIR/db/
+  sed -i "s|%%USER%%|$DB_USER|" "$dbadmin/create-admin-user.js"
+  sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$dbadmin/create-admin-user.js"
 
-#   sed -i "s|%%USER%%|$DB_USER|" "$dbadmin/create-elysian-user.js"
-#   sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$dbadmin/create-elysian-user.js"
-#   mv $dbadmin/create-elysian-user.js $ROOT_DIR/db/
+  sed -i "s|%%USER%%|$DB_USER|" "$dbadmin/create-elysian-user.js"
+  sed -i "s|%%PASSWORD%%|$DB_PASSWORD|" "$dbadmin/create-elysian-user.js"
 
-#   rm -rf ${dbadmin}
+  cp -r $dbadmin $ROOT_DIR/dbadmin-bak
+
+  sudo mv $dbadmin/create-admin-user.js $ROOT_DIR/db/
+  sudo mv $dbadmin/create-elysian-user.js $ROOT_DIR/db/
+
+  rm -rf ${dbadmin}
 else
   echo "NO"
 fi
@@ -54,11 +57,11 @@ docker-compose start db
 # attempting to wait for mongodb to be ready
 $ROOT_DIR/bin/wait-for-service.sh db 'waiting for connections on port' 10
 
-# docker exec db mongo admin /data/db/create-admin-user.js
-# docker exec db rm /data/db/create-admin-user.js
+docker exec db mongo admin /data/db/create-admin-user.js
+docker exec db rm /data/db/create-admin-user.js
 
-# docker exec db mongo elysian /data/db/create-elysian-user.js
-# docker exec db rm /data/db/create-elysian-user.js
+docker exec db mongo elysian /data/db/create-elysian-user.js
+docker exec db rm /data/db/create-elysian-user.js
 
 echo -n "Starting ..."
 sleep 5
